@@ -202,6 +202,71 @@
             margin-left: 10px;
         }
 
+        /* DividableSection Styles */
+        .dividable-section {
+            margin: 30px 0;
+        }
+
+        .dividable-section-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 6px 6px 0 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .dividable-section-title:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .dividable-section-title .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .dividable-section.collapsed .dividable-section-title .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .dividable-section-body {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 0 0 6px 6px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+        }
+
+        .subsection {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .subsection:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .subsection-title {
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .subsection-content {
+            color: #555;
+            line-height: 1.7;
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -222,6 +287,14 @@
 
             .content {
                 padding: 20px;
+            }
+
+            .dividable-section-title {
+                font-size: 1em;
+            }
+
+            .dividable-section-body {
+                padding: 15px;
             }
         }
     </style>
@@ -296,11 +369,54 @@
             );
         }
 
+        /* DividableSection Component */
+        function DividableSection({ title, subsections, defaultOpen = true }) {
+            const [isOpen, setIsOpen] = useState(defaultOpen);
+
+            return (
+                <div className={`dividable-section ${!isOpen ? 'collapsed' : ''}`}>
+                    <div
+                        className="dividable-section-title"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <span>{title}</span>
+                        <span className="toggle-icon">▼</span>
+                    </div>
+                    {isOpen && (
+                        <div className="dividable-section-body">
+                            {subsections.map((subsection, idx) => (
+                                <div key={idx} className="subsection">
+                                    <div className="subsection-title">{subsection.title}</div>
+                                    <div className="subsection-content">{subsection.content}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         function GettingStarted() {
+            const gettingStartedSubsections = [
+                {
+                    title: 'Welcome',
+                    content: 'This documentation site is built with React and can be easily customized. Follow the sections below to learn more about our project.'
+                },
+                {
+                    title: 'Quick Start',
+                    content: 'Open index.html in your browser and start exploring the interactive documentation right away!'
+                }
+            ];
+
             return (
                 <>
                     <h2>Getting Started</h2>
-                    <p>Welcome! This documentation will help you get up and running quickly. Follow the sections below to learn more about our project.</p>
+                    <p>Welcome! This documentation will help you get up and running quickly.</p>
+                    <DividableSection 
+                        title="Getting Started Basics" 
+                        subsections={gettingStartedSubsections}
+                        defaultOpen={true}
+                    />
                     <CounterSection />
                 </>
             );
@@ -316,9 +432,29 @@
                 { icon: '🚀', title: 'Easy to Deploy', description: 'Deploy to GitHub Pages or any host' }
             ];
 
+            const featureSubsections = [
+                {
+                    title: 'Core Features',
+                    content: 'Our documentation site comes with fast performance, modern design, and full responsiveness across all devices.'
+                },
+                {
+                    title: 'Interactive Elements',
+                    content: 'Includes React-powered components for counters, expandable sections, and interactive feature cards.'
+                },
+                {
+                    title: 'Easy Deployment',
+                    content: 'Deploy to GitHub Pages or any static hosting service with zero configuration needed.'
+                }
+            ];
+
             return (
                 <>
                     <h2>Features</h2>
+                    <DividableSection 
+                        title="Available Features" 
+                        subsections={featureSubsections}
+                        defaultOpen={true}
+                    />
                     <div className="feature">
                         {features.map((feature, idx) => (
                             <FeatureCard key={idx} {...feature} />
@@ -329,15 +465,30 @@
         }
 
         function Installation() {
+            const installationSubsections = [
+                {
+                    title: 'Basic Setup',
+                    content: 'Clone or download the project, then open index.html in your browser. That\'s it!'
+                },
+                {
+                    title: 'Development Server',
+                    content: 'For development, use a local server to avoid CORS issues: python -m http.server 8000'
+                },
+                {
+                    title: 'Browser Access',
+                    content: 'After starting your server, visit http://localhost:8000 to see your documentation.'
+                }
+            ];
+
             return (
                 <>
                     <h2>Installation</h2>
                     <p>To get started, follow these simple steps:</p>
-                    <ol>
-                        <li>Clone or download the project</li>
-                        <li>Open <code>index.html</code> in your browser</li>
-                        <li>Begin exploring the interactive documentation</li>
-                    </ol>
+                    <DividableSection 
+                        title="Installation Steps" 
+                        subsections={installationSubsections}
+                        defaultOpen={true}
+                    />
                     <ExpandableSection title="Advanced Setup">
                         <p>For development, you might want to use a local server to avoid CORS issues:</p>
                         <pre><code>python -m http.server 8000</code></pre>
@@ -348,16 +499,33 @@
         }
 
         function Usage() {
+            const usageSubsections = [
+                {
+                    title: 'Customization',
+                    content: 'Edit the React components directly in the HTML file. You can modify colors, fonts, and content easily.'
+                },
+                {
+                    title: 'Adding Components',
+                    content: 'Create new React components and add them to sections. The DividableSection component makes it easy to organize content.'
+                },
+                {
+                    title: 'Styling',
+                    content: 'Customize CSS styles for colors, fonts, spacing, and responsive behavior using the embedded stylesheet.'
+                },
+                {
+                    title: 'Deployment',
+                    content: 'Deploy to GitHub Pages, Netlify, Vercel, or any static hosting service for free.'
+                }
+            ];
+
             return (
                 <>
                     <h2>Usage</h2>
-                    <p>This is a React-powered static documentation site. You can:</p>
-                    <ul>
-                        <li>Edit the React components in the HTML file</li>
-                        <li>Customize colors and styling with CSS</li>
-                        <li>Deploy to GitHub Pages for free hosting</li>
-                        <li>Add more components and interactive features</li>
-                    </ul>
+                    <DividableSection 
+                        title="How to Use This Site" 
+                        subsections={usageSubsections}
+                        defaultOpen={true}
+                    />
 
                     <h3>Interactive Components</h3>
                     <p>This site includes several React features:</p>
@@ -365,38 +533,54 @@
                         <li><strong>Counter:</strong> Click buttons to see state management in action</li>
                         <li><strong>Expandable sections:</strong> Click to reveal/hide content</li>
                         <li><strong>Feature cards:</strong> Hover and click to explore</li>
+                        <li><strong>DividableSection:</strong> Organize content into collapsible subsections</li>
                         <li><strong>Navigation:</strong> Click to switch between sections</li>
                     </ul>
 
                     <h3>Example React Component</h3>
-                    <pre><code>{`function Counter() {
-  const [count, setCount] = useState(0);
-  return (
-    <button onClick={() => setCount(count + 1)}>
-      Clicked {count} times
-    </button>
-  );
-}`}</code></pre>
+                    <pre><code>{`// DividableSection Example
+const subsections = [
+  { title: 'Step 1', content: 'First section content' },
+  { title: 'Step 2', content: 'Second section content' }
+];
+
+<DividableSection 
+  title="My Section" 
+  subsections={subsections}
+  defaultOpen={true}
+/>`}</code></pre>
                 </>
             );
         }
 
         function FAQ() {
+            const faqSubsections = [
+                {
+                    title: 'Q: What is DividableSection?',
+                    content: 'DividableSection is a React component that organizes content into collapsible subsections, making it easy to divide documentation into smaller, manageable parts.'
+                },
+                {
+                    title: 'Q: How do I add new subsections?',
+                    content: 'Create an array of subsection objects with title and content properties, then pass them to the DividableSection component.'
+                },
+                {
+                    title: 'Q: Can I customize the styling?',
+                    content: 'Yes! Edit the CSS in the style block. The DividableSection uses .dividable-section, .dividable-section-title, and .subsection classes that you can modify.'
+                },
+                {
+                    title: 'Q: Is this production-ready?',
+                    content: 'Absolutely! This is a fully functional documentation site that you can deploy to any static hosting service.'
+                }
+            ];
+
             return (
                 <>
                     <h2>FAQ</h2>
-                    <ExpandableSection title="How do I customize this?">
-                        <p>Edit the React components directly in the HTML file. You can modify colors, fonts, content, and add new interactive components.</p>
-                    </ExpandableSection>
-                    <ExpandableSection title="Can I deploy this?">
-                        <p>Yes! You can easily deploy this to GitHub Pages, Netlify, Vercel, or any static hosting service.</p>
-                    </ExpandableSection>
-                    <ExpandableSection title="How do I add more pages?">
-                        <p>Create new React components and add them to the main app. You can also create separate HTML files and link to them.</p>
-                    </ExpandableSection>
-                    <ExpandableSection title="Is React included?">
-                        <p>Yes! This site uses React 18 loaded from a CDN (unpkg). No build process needed!</p>
-                    </ExpandableSection>
+                    <DividableSection 
+                        title="Frequently Asked Questions" 
+                        subsections={faqSubsections}
+                        defaultOpen={false}
+                    />
                 </>
             );
         }
